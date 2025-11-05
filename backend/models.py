@@ -1,22 +1,24 @@
 from flask_sqlalchemy import SQLAlchemy
-
+from flask_login import UserMixin
 db = SQLAlchemy()
 
 
-class Admin(db.Model):
+class Admin(db.Model, UserMixin):
     __tablename__ = 'admin'
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
+    def get_id(self):
+        return self.email
 
-class ServiceCategory(db.Model):
+class ServiceCategory(db.Model , UserMixin):
     __tablename__ = 'service_category'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
     decription = db.Column(db.String, nullable=True)
     professionals  = db.relationship("Professional", backref="service_category")
 
-class Professional(db.Model):
+class Professional(db.Model,UserMixin):
     __tablename__ = 'professional'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -26,8 +28,10 @@ class Professional(db.Model):
     phone = db.Column(db.String, nullable=True)
     experience = db.Column(db.Integer, nullable=True)
     recived_bookings = db.relationship("Booking", backref="professional")
+    def get_id(self):
+        return self.email
 
-class Customer(db.Model):
+class Customer(db.Model ,UserMixin):
     __tablename__ = 'customer'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False)
@@ -36,6 +40,10 @@ class Customer(db.Model):
     phone = db.Column(db.String, nullable=True)
     address = db.Column(db.String, nullable=True)
     sent_bookings = db.relationship("Booking", backref="customer")
+    def get_id(self):
+        return self.email
+
+    
 
 class Booking(db.Model):
     __tablename__ = 'booking'
