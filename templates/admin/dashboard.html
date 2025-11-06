@@ -44,10 +44,10 @@
             </div>
         </div>
     </nav>
-    <div class="card mt-5 ms-5 me-5" >
+    <div class="card mt-5 ms-5 me-5">
         <div class="card-header d-flex">
             <h3>Services</h3>
-            <a href="/createservice" class="btn btn-primary ms-auto">+ Create</a>
+            <a href="/manageservice?action=create" class="btn btn-primary ms-auto">+ Create</a>
 
         </div>
 
@@ -58,26 +58,60 @@
                         <th scope="col">#</th>
                         <th scope="col">Service Name</th>
                         <th scope="col">Description</th>
-                        
+                        <th scope="col">Action</th>
+
                     </tr>
                 </thead>
                 <tbody>
+                    {% for cat in allcats %}
                     <tr>
-                        <th scope="row">1</th>
-                        <td>Home Cleaning</td>
-                        <td>this is home cleaning</td>
-                       
+                        <th scope="row">{{loop.index}}</th>
+                        <td>{{cat.name}}</td>
+                        <td>{{cat.description}}</td>
+                        <td>
+
+                            <a href="/manageservice?action=edit&id={{cat.id}}" class="btn btn-primary">Edit</a>
+                            
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#servicecat{{cat.id}}">
+                                Delete
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="servicecat{{cat.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Delete {{cat.name}}</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete {{cat.name}} ?</p>
+                                            <form action = "/manageservice?action=delete&id={{cat.id}}"  method="POST">
+                                                <button type="submit" class = "btn btn-primary">Delete</button>
+                                            </form>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
                     </tr>
-                    
+                    {% endfor %}
+
                 </tbody>
             </table>
         </div>
     </div>
 
-    <div class="card mt-5 ms-5 me-5" >
+    <div class="card mt-5 ms-5 me-5">
         <div class="card-header d-flex">
             <h3>Service Professional</h3>
-            <button class="btn btn-primary ms-auto">+ Create</button>
+            <a href="/manageprofessional?action=create" class="btn btn-primary ms-auto">+ Create</a>
 
         </div>
 
@@ -93,7 +127,7 @@
                         <th scope="col">Service</th>
                         <th scope="col">Status</th>
                         <th scope="col">Action</th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
@@ -109,19 +143,19 @@
                             <button class="btn btn-sm btn-warning">Edit</button>
                             <button class="btn btn-sm btn-danger">Delete</button>
                             <button class="btn btn-sm btn-info">Flag</button>
-                        </td> 
+                        </td>
 
-                       
+
                     </tr>
-                    
+
                 </tbody>
             </table>
         </div>
     </div>
-    <div class="card mt-5 ms-5 me-5" >
+    <div class="card mt-5 ms-5 me-5">
         <div class="card-header d-flex">
             <h3>Customer</h3>
-            
+
 
         </div>
 
@@ -134,10 +168,10 @@
                         <th scope="col">Email</th>
                         <th scope="col">Phone</th>
                         <th scope="col">Address</th>
-                        
+
                         <th scope="col">Status</th>
                         <th scope="col">Action</th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
@@ -147,17 +181,17 @@
                         <td>c1@gmail.com</td>
                         <td>99999999999</td>
                         <td>xyz colony, Delhi</td>
-                        
+
                         <td>Active</td>
                         <td>
                             <button class="btn btn-sm btn-warning">View</button>
                             <button class="btn btn-sm btn-danger">Delete</button>
                             <button class="btn btn-sm btn-info">Flag</button>
-                        </td> 
-                        
-                       
+                        </td>
+
+
                     </tr>
-                    
+
                 </tbody>
             </table>
         </div>

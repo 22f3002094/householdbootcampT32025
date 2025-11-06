@@ -16,7 +16,7 @@ with app.app_context():
     
     if db.session.query(ServiceCategory).count() == 0:
         categories = [
-            ServiceCategory(name="Plumbing", decription="All plumbing related services"),
+            ServiceCategory(name="Plumbing", description="All plumbing related services"),
             ServiceCategory(name="Electrical", decription="All electrical related services"),
             ServiceCategory(name="Cleaning", decription="All cleaning related services"),
             ServiceCategory(name="Carpentry", decription="All carpentry related services"),

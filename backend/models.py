@@ -15,8 +15,9 @@ class ServiceCategory(db.Model , UserMixin):
     __tablename__ = 'service_category'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True, nullable=False)
-    decription = db.Column(db.String, nullable=True)
-    professionals  = db.relationship("Professional", backref="service_category")
+    description = db.Column(db.String, nullable=True)
+    professionals  = db.relationship("Professional", backref="service_category" , cascade="all, delete-orphan" )
+    bookings = db.relationship("Booking" , backref="service_category" , cascade="all, delete-orphan")
 
 class Professional(db.Model,UserMixin):
     __tablename__ = 'professional'

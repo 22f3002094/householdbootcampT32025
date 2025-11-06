@@ -13,16 +13,16 @@
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="card" style="width: 18rem;">
             <div class="card-body">
-                <form action="/login" method="POST">
+                <form action="/manageservice?action={% if serobj %}edit&id={{serobj.id}}{% else %}create{% endif %}" method="POST">
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="floatingInput"  name="service_name">
-                        <label for="floatingInput">Service Name</label>
+                        <input type="text" class="form-control" id="floatingname"  name="servname" {% if serobj %}value ="{{serobj.name}}"{% endif %}>
+                        <label for="floatingname">Service Name</label>
                     </div>
                     <div class="form-floating">
-                        <input type="password" class="form-control" id="floatingPassword"  name="Description">
-                        <label for="floatingPassword">Description</label>
+                        <input type="text" class="form-control" id="floatingdescription"  name="servdesc" {% if serobj %}value ="{{serobj.description}}"{% endif %}>
+                        <label for="floatingdescription">Description</label>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3">Create</button>
+                    <button type="submit" class="btn btn-primary mt-3">{% if serobj %}Edit{% else %}Create{% endif %}</button>
 
                 </form>
             </div>
