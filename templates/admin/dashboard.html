@@ -131,23 +131,76 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for prof in profs %}
                     <tr>
-                        <th scope="row">1</th>
-                        <td>P1</td>
-                        <td>p1@gmail.com</td>
-                        <td>99999999999</td>
-                        <td>10</td>
-                        <td>Home Cleaning</td>
-                        <td>Active</td>
+                        <th scope="row">{{loop.index}}</th>
+                        <td>{{prof.name}}</td>
+                        <td>{{prof.email}}</td>
+                        <td>{{prof.phone}}</td>
+                        <td>{{prof.experience}}</td>
+                        <td>{{prof.service_category.name}}</td>
+                        <td>{{prof.status}}</td>
                         <td>
-                            <button class="btn btn-sm btn-warning">Edit</button>
-                            <button class="btn btn-sm btn-danger">Delete</button>
-                            <button class="btn btn-sm btn-info">Flag</button>
+                            <a href="/manageprofessional?action=edit&id={{prof.id}}" class="btn btn-sm btn-warning">Edit</a>
+                           
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                data-bs-target="#prof-{{prof.id}}">
+                                Delete
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="prof-{{prof.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Delete {{prof.name}}</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete {{prof.name}}'s Account' ?</p>
+                                            <form action = "/manageprofessional?action=delete&id={{prof.id}}"  method="POST">
+                                                <button type="submit" class = "btn btn-primary">Delete</button>
+                                            </form>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div> 
+                            
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                data-bs-target="#profflag-{{prof.id}}">
+                                {% if prof.status=="Active" %}Flag{% elif prof.status=="Flagged" %}Unflag{% endif %}
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="profflag-{{prof.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel"> {% if prof.status=="Active" %}Flag{% elif prof.status=="Flagged" %}Unflag{% endif %} {{prof.name}}</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to {% if prof.status=="Active" %}Flag{% elif prof.status=="Flagged" %}Unflag{% endif %} {{prof.name}} ?</p>
+                                            <form action = "/manageprofessional?action={% if prof.status=='Active' %}flag{% elif prof.status=='Flagged' %}unflag{% endif %}&id={{prof.id}}"  method="POST">
+                                                <button type="submit" class = "btn btn-primary"> {% if prof.status=="Active" %}Flag{% elif prof.status=="Flagged" %}Unflag{% endif %}</button>
+                                            </form>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
                         </td>
 
 
                     </tr>
-
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -175,22 +228,50 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for cust in custs %}
                     <tr>
-                        <th scope="row">1</th>
-                        <td>C1</td>
-                        <td>c1@gmail.com</td>
-                        <td>99999999999</td>
-                        <td>xyz colony, Delhi</td>
+                        <th scope="row">{{loop.index}}</th>
+                        <td>{{cust.name}}</td>
+                        <td>{{cust.email}}</td>
+                        <td>{{cust.phone}}</td>
+                        <td>{{cust.address}}</td>
 
-                        <td>Active</td>
+                        <td>{{cust.status}}</td>
                         <td>
                             <button class="btn btn-sm btn-warning">View</button>
-                            <button class="btn btn-sm btn-danger">Delete</button>
-                            <button class="btn btn-sm btn-info">Flag</button>
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal"
+                                data-bs-target="#custflag-{{cust.id}}">
+                                {% if cust.status=="Active" %}Flag{% elif cust.status=="Flagged" %}Unflag{% endif %}
+                            </button>
+
+                            <!-- Modal -->
+                            <div class="modal fade" id="custflag-{{cust.id}}" tabindex="-1" aria-labelledby="exampleModalLabel"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel"> {% if cust.status=="Active" %}Flag{% elif cust.status=="Flagged" %}Unflag{% endif %} {{cust.name}}</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to {% if cust.status=="Active" %}Flag{% elif cust.status=="Flagged" %}Unflag{% endif %} {{cust.name}} ?</p>
+                                            <form action = "/managecustomer?action={% if cust.status=='Active' %}flag{% elif cust.status=='Flagged' %}unflag{% endif %}&id={{cust.id}}"  method="POST">
+                                                <button type="submit" class = "btn btn-primary"> {% if cust.status=="Active" %}Flag{% elif cust.status=="Flagged" %}Unflag{% endif %}</button>
+                                            </form>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            
+
                         </td>
 
 
                     </tr>
+                    {% endfor %}
 
                 </tbody>
             </table>

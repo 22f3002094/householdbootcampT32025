@@ -28,7 +28,8 @@ class Professional(db.Model,UserMixin):
     password = db.Column(db.String, nullable=False)
     phone = db.Column(db.String, nullable=True)
     experience = db.Column(db.Integer, nullable=True)
-    recived_bookings = db.relationship("Booking", backref="professional")
+    status = db.Column(db.Integer,nullable=True)
+    recived_bookings = db.relationship("Booking", backref="professional" ,cascade="all, delete-orphan" )
     def get_id(self):
         return self.email
 
@@ -40,6 +41,7 @@ class Customer(db.Model ,UserMixin):
     password = db.Column(db.String, nullable=False)
     phone = db.Column(db.String, nullable=True)
     address = db.Column(db.String, nullable=True)
+    status=db.Column(db.String)
     sent_bookings = db.relationship("Booking", backref="customer")
     def get_id(self):
         return self.email

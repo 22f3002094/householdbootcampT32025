@@ -13,39 +13,39 @@
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="card" style="width: 18rem;">
             <div class="card-body">
-                <form action="/manageprofessional?create" method="POST">
+                <form action="/manageprofessional?action={% if prof %}edit&id={{prof.id}}{% else %}create{% endif %}" method="POST">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="cust_name" name="name">
-                        <label for="cust_name">Name</label>
+                        <input type="text" class="form-control" id="sp_name" name="name" {% if prof %}value="{{prof.name}}"{% endif %}>
+                        <label for="sp_name">Name</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="cust_email" name="email">
-                        <label for="cust_email">Email address</label>
+                        <input type="email" class="form-control" id="sp_email" name="email" {% if prof %}value="{{prof.email}}"{% endif %}>
+                        <label for="sp_email">Email address</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="cust_password" name="password">
-                        <label for="cust_password">Password</label>
+                        <input type="password" class="form-control" id="sp_password" name="password" {% if prof %}value="{{prof.password}}"{% endif %}>
+                        <label for="sp_password">Password</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="cust_address" name="exp">
-                        <label for="cust_address">experiance</label>
+                        <input type="text" class="form-control" id="sp_address" name="exp" {% if prof %}value="{{prof.experience}}"{% endif %}>
+                        <label for="sp_address">experiance</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="cust_phone" name="phone">
-                        <label for="cust_phone">Phone</label>
+                        <input type="text" class="form-control" id="sp_phone" name="phone" {% if prof %}value="{{prof.phone}}"{% endif %}>
+                        <label for="sp_phone">Phone</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <select class="form-select" aria-label="Default select example">
-                            <option selected>Choose category</option>
+                        <select class="form-select" aria-label="Default select example" id="sp_cat" name="servicecat">
+                            <option selected value="">{% if prof %}{{prof.service_category.name}}{% else %}Choose Cateogory{% endif %}</option>
                             {% for cat in all_cats %}
-                            <option value="1">{{cat.name}}</option>
+                            <option value="{{cat.id}}">{{cat.name}}</option>
                             {% endfor %}
                             
                         </select>
 
-                        <label for="cust_phone">Cateogory</label>
+                        <label for="sp_cat">Cateogory</label>
                     </div>
-                    <button type="submit" class="btn btn-primary mt-3">Register</button>
+                    <button type="submit" class="btn btn-primary mt-3">{% if prof %}Edit{% else %}Register{% endif %}</button>
 
                 </form>
             </div>

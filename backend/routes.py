@@ -67,7 +67,9 @@ def admin_dashboard():
     if isinstance(current_user , Admin):
         if request.method=="GET" :
             allcats  = db.session.query(ServiceCategory).all()
-            return render_template("admin/dashboard.html" , allcats= allcats)
+            profs = db.session.query(Professional).all()
+            custs = db.session.query(Customer).all()
+            return render_template("admin/dashboard.html" , allcats= allcats , profs=profs , custs=custs)
     else:
         return "Unauthorized" , 403
     
@@ -138,19 +140,97 @@ def mangeprofessional():
     if request.method=="GET" and request.args.get("action") =="create":
         all_cats = db.session.query(ServiceCategory).all()
         return render_template("/professional/add.html",all_cats= all_cats)
+    if request.method =="GET" and request.args.get("action") == "edit":
+        all_cats = db.session.query(ServiceCategory).all()
+        id  = request.args.get("id")
+        prof = db.session.query(Professional).filter_by(id = id).first()
+
+        return render_template("/professional/add.html" , all_cats = all_cats , prof=prof)
     elif request.method=="POST" and request.args.get("action") =="create":
-        name = request.form.get("cust_name")
-        email = request.form.get("cust_email")
-        password = request.form.get("cust_password")
-        phone = request.form.get("cust_phone")
-        category_id = request.form.get("cust_category")
-        experience = request.form.get("cust_experience")
+        name = request.form.get("name")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        phone = request.form.get("phone")
+        category_id = request.form.get("servicecat")
+        experience = request.form.get("exp")
+        print(name)
+        print(email)
+        print(password)
+        print(phone)
+        print(category_id)
+        print(experience)
         if not name or not email or not password or not phone or not category_id or not experience :
             return "All fields are required" , 400
         prof = db.session.query(Professional).filter_by(email=email).first()
         if prof:
             return "Email already registered" , 409
         else:
-            new_prof = Professional(name=name , email=email , password=password , phone=phone , servicecategoryid=category_id )
+            new_prof = Professional(name=name , email=email , password=password , phone=phone ,status="Active" , servicecategoryid=category_id , experience = experience )
             db.session.add(new_prof)
             db.session.commit()
+            return redirect("/admin/dashboard")
+    elif request.method=="POST" and request.args.get("action") =="edit":
+        name = request.form.get("name")
+        email = request.form.get("email")
+        password = request.form.get("password")
+        phone = request.form.get("phone")
+        category_id = request.form.get("servicecat")
+        experience = request.form.get("exp")
+        id = request.args.get("id")
+        prof = db.session.query(Professional).filter(Professional.email==email , Professional.id != id).first()
+        if prof:
+            return "Email already registered" , 409
+        else:
+            prof = db.session.query(Professional).filter_by(id = id).first()
+            if name:
+                prof.name = name
+            if email : 
+                prof.email = email
+            if password :
+                prof.password = password
+            if experience:
+                prof.experience = experience
+            if phone:
+                prof.phone = phone
+            if category_id:
+                prof.servicecategoryid = category_id
+
+            db.session.commit()
+            return redirect("/admin/dashboard") 
+    elif request.method=="POST" and request.args.get("action") =="delete":
+        id = request.args.get("id")
+        prof = db.session.query(Professional).filter_by(id=id).first()
+        db.session.delete(prof)
+        db.session.commit()
+        return redirect("/admin/dashboard")
+    elif request.method=="POST" and request.args.get("action") =="flag":
+        id = request.args.get("id")
+        prof = db.session.query(Professional).filter_by(id=id).first()
+        prof.status="Flagged"
+        db.session.commit()
+        return redirect("/admin/dashboard")
+    elif request.method=="POST" and request.args.get("action") =="unflag":
+        id = request.args.get("id")
+        prof = db.session.query(Professional).filter_by(id=id).first()
+        prof.status="Active"
+        db.session.commit()
+        return redirect("/admin/dashboard")
+    
+
+@app.route("/managecustomer" , methods=["GET" ,"POST"])  
+def managecustomer():
+    if request.method=="POST" and request.args.get("action") =="flag":
+        id = request.args.get("id")
+        cust = db.session.query(Customer).filter_by(id=id).first()
+        cust.status="Flagged"
+        db.session.commit()
+        return redirect("/admin/dashboard")
+    elif request.method=="POST" and request.args.get("action") =="unflag":
+        id = request.args.get("id")
+        cust = db.session.query(Customer).filter_by(id=id).first()
+        cust.status="Active"
+        db.session.commit()
+        return redirect("/admin/dashboard")
+
+
+
