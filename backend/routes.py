@@ -50,16 +50,6 @@ def login():
         else:
             return "Invalid credentials" , 401
 
-@app.route("/customer/dashboard")
-@login_required
-def customer_dashboard():
-    if isinstance(current_user , Customer):
-        if request.method=="GET" :
-            return f"welcome {current_user.name} to customer dashboard"
-    else:
-        return "Unauthorized" , 403
-        
-
 
 @app.route("/admin/dashboard")
 @login_required
@@ -73,20 +63,6 @@ def admin_dashboard():
     else:
         return "Unauthorized" , 403
     
-
-
-@app.route("/professional/dashboard")
-@login_required
-def professional_dashboard():
-    if isinstance(current_user , Professional):
-        if request.method=="GET" :
-
-            
-            return f"welcome {current_user.name} to Professional dashboard"
-    else:
-        return "Unauthorized" , 403 
-        
-
 
 @app.route("/manageservice" , methods=["GET" , "POST"] )
 @login_required
@@ -234,3 +210,56 @@ def managecustomer():
 
 
 
+
+@app.route("/customer/dashboard" , methods=["GET" , "POST"] )
+@login_required
+def customer_bookings():
+    if isinstance(current_user , Customer):
+        if request.method=="GET" :
+            # bookings = db.session.query(Booking).filter_by(customerid=current_user.id).all()
+            all_cats = db.session.query(ServiceCategory).all()
+            return render_template("customer/dashboard.html" , allcats=all_cats)
+    else:
+        return "Unauthorized" , 403
+    
+@app.route("/service/<id>")
+@login_required
+def view_service(id):
+    if isinstance(current_user , Customer):
+        if request.method=="GET" :
+            service = db.session.query(ServiceCategory).filter_by(id=id).first()
+            professionals = db.session.query(Professional).filter_by(servicecategoryid=service.id , status="Active").all()
+            return render_template("customer/service.html" , service=service , professionals=professionals)
+    else:
+        return "Unauthorized" , 403
+    
+
+
+@app.route("/professional/dashboard")
+@login_required
+def professional_dashboard():
+    if isinstance(current_user , Professional):
+        if request.method=="GET" :
+
+            
+            return render_template("professional/dashboard.html")
+    else:
+        return "Unauthorized" , 403 
+    
+
+@app.route("/admin/search" , methods=["GET" , "POST"] )
+def admin_search():
+    if request.method=="GET":
+        return render_template("admin/search.html")
+    elif request.method=="POST":
+        query_type = request.form.get("query_type")
+        query_term = request.form.get("query_term")   
+        if query_type =="service":
+            services = db.session.query(ServiceCategory).filter(ServiceCategory.name.ilike(f"%{query_term}%")).all()
+            return render_template("/admin/search.html" , services = services , query_type=query_type )
+        elif query_type =="professional":
+            professionals = db.session.query(Professional).filter(Professional.name.ilike(f"%{query_term}%")).all()
+            return render_template("/admin/search.html" , professionals=professionals , query_type=query_type )
+        elif query_type =="customer":
+            customers = db.session.query(Customer).filter(Customer.name.ilike(f"%{query_term}%")).all()
+            return render_template("/admin/search.html" , customers=customers , query_type=query_type )
