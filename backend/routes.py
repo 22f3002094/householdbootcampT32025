@@ -1,7 +1,8 @@
 from flask import current_app as app
 from flask import render_template, request, redirect
-from backend.models import db, Customer, Admin, Professional, ServiceCategory , Booking
+from backend.models import db, Customer, Admin, Professional, ServiceCategory , Booking , ProfessionalAvailability
 from flask_login import login_user, login_required,current_user
+from datetime import datetime, timedelta
 @app.route("/")
 def home():
     return render_template("home.html")
@@ -263,3 +264,68 @@ def admin_search():
         elif query_type =="customer":
             customers = db.session.query(Customer).filter(Customer.name.ilike(f"%{query_term}%")).all()
             return render_template("/admin/search.html" , customers=customers , query_type=query_type )
+
+def get_next_seven_days():
+    today = datetime.now().date()
+    dates = []
+    for i in range(7):
+        day = today + timedelta(days=i)
+        dates.append(day)
+    return dates
+
+def get_fixed_slots():
+    slots = [
+        ("09:00", "10:00"),
+        ("10:00", "11:00"),
+        ("11:00", "12:00"),
+        ("13:00", "14:00"),
+        ("14:00", "15:00"),
+        ("15:00", "16:00"),
+    ]
+    f_slots = []
+    for start,end in slots:
+        f_slots.append( (datetime.strptime(start , "%H:%M").time() , datetime.strptime(end , "%H:%M").time() ) )
+    return f_slots
+
+
+
+@app.route("/professional/provideavailability" , methods=["GET" , "POST"] )
+@login_required 
+def provide_availability(): 
+    if isinstance(current_user , Professional):
+        if request.method=="GET":
+            dates = get_next_seven_days()
+            slots = get_fixed_slots()
+            all_slots = []
+            existing_availabilities = db.session.query(ProfessionalAvailability).filter(ProfessionalAvailability.professionalid==current_user.id , ProfessionalAvailability.available_date>=datetime.today().date()).all()
+            print(dates)
+            for day in dates:
+                days_slots = []
+                for start,end in slots:
+
+                    if any(es.available_date==day and es.start_time==start and es.end_time == end and es.status=='booked' for es in existing_availabilities ):
+                        days_slots.append({'start_time':start,'end_time':end,'status':'booked'})
+                    elif any(es.available_date==day and es.start_time==start and es.end_time == end and es.status=='available' for es in existing_availabilities ):
+                        days_slots.append({'start_time':start,'end_time':end,'status':'available'})    
+                    else:
+                        days_slots.append({'start_time':start,'end_time':end,'status':'not selected'})
+                all_slots.append( {"date": day , "slots": days_slots} )
+            print(all_slots)
+            return render_template("professional/availability.html" , all_slots=all_slots)
+        elif request.method=="POST":
+            slots_data = request.form.getlist("slots")
+            db.session.query(ProfessionalAvailability).filter(ProfessionalAvailability.professionalid==current_user.id , ProfessionalAvailability.available_date>=datetime.today().date() , ProfessionalAvailability.status=="available").delete()
+            for slot in slots_data:
+                selected_date = datetime.strptime(slot.split("_")[0], "%Y-%m-%d").date()
+                start_time = datetime.strptime(slot.split("_")[1], "%H:%M:%S").time()
+                end_time = datetime.strptime(slot.split("_")[2], "%H:%M:%S").time()
+                new_availability = ProfessionalAvailability(
+                    professionalid=current_user.id,
+                    available_date=selected_date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    status="available"
+                )
+                db.session.add(new_availability)
+                db.session.commit()
+            return redirect("/professional/dashboard")

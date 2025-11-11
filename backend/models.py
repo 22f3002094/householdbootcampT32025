@@ -30,6 +30,7 @@ class Professional(db.Model,UserMixin):
     experience = db.Column(db.Integer, nullable=True)
     status = db.Column(db.Integer,nullable=True)
     recived_bookings = db.relationship("Booking", backref="professional" ,cascade="all, delete-orphan" )
+    availabilities = db.relationship("ProfessionalAvailability", backref="professional" , cascade="all, delete-orphan" )
     def get_id(self):
         return self.email
 
@@ -47,13 +48,23 @@ class Customer(db.Model ,UserMixin):
         return self.email
 
     
-
 class Booking(db.Model):
     __tablename__ = 'booking'
     id = db.Column(db.Integer, primary_key=True)
     customerid = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
     professionalid = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
     servicecategoryid = db.Column(db.Integer, db.ForeignKey('service_category.id'), nullable=False)
-    booking_date = db.Column(db.DateTime, nullable=False)
+    booking_date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
     status = db.Column(db.String, nullable=False, default='pending')
+    slot_id = db.Column(db.Integer, db.ForeignKey('professional_availability.id'), nullable=True)
 
+class ProfessionalAvailability(db.Model):
+    __tablename__ = 'professional_availability'
+    id = db.Column(db.Integer, primary_key=True)
+    professionalid = db.Column(db.Integer, db.ForeignKey('professional.id'), nullable=False)
+    available_date = db.Column(db.Date, nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    status = db.Column(db.String, nullable=False)

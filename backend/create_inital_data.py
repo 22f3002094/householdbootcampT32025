@@ -1,5 +1,6 @@
-from .models import db, Admin,Customer ,ServiceCategory, Professional
+from .models import db, Admin,Customer ,ServiceCategory, Professional, ProfessionalAvailability, Booking
 from flask import current_app as app
+from datetime import date,time
 
 with app.app_context():
     db.create_all()
@@ -17,9 +18,9 @@ with app.app_context():
     if db.session.query(ServiceCategory).count() == 0:
         categories = [
             ServiceCategory(name="Plumbing", description="All plumbing related services"),
-            ServiceCategory(name="Electrical", decription="All electrical related services"),
-            ServiceCategory(name="Cleaning", decription="All cleaning related services"),
-            ServiceCategory(name="Carpentry", decription="All carpentry related services"),
+            ServiceCategory(name="Electrical", description="All electrical related services"),
+            ServiceCategory(name="Cleaning", description="All cleaning related services"),
+            ServiceCategory(name="Carpentry", description="All carpentry related services"),
         ]
         db.session.add_all(categories)
         db.session.commit()
@@ -31,4 +32,17 @@ with app.app_context():
             Professional(name="P4", servicecategoryid=4, email="p4@gmail.com" , password="pass", phone="7777777777", experience=3),
         ]
         db.session.add_all(professionals)
+        db.session.commit()
+    if db.session.query(ProfessionalAvailability).count() == 0:
+        availabilities = [
+            ProfessionalAvailability(professionalid=1, available_date=date(2025,11,12), start_time=time(9,0), end_time=time(10,0) , status="available"),
+            ProfessionalAvailability(professionalid=1, available_date=date(2025,11,13), start_time=time(10,0), end_time=time(11,0) , status="booked"),
+        ]
+        db.session.add_all(availabilities)
+        db.session.commit()
+    if db.session.query(Booking).count() == 0:
+        bookings = [
+            Booking(customerid=1, professionalid=1, servicecategoryid=1, booking_date=date(2025,11,13), start_time=time(10,0), end_time=time(11,0), status="booked", slot_id=2),
+        ]
+        db.session.add_all(bookings)
         db.session.commit()
