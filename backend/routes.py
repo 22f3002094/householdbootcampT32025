@@ -217,9 +217,9 @@ def managecustomer():
 def customer_bookings():
     if isinstance(current_user , Customer):
         if request.method=="GET" :
-            # bookings = db.session.query(Booking).filter_by(customerid=current_user.id).all()
+            bookings = db.session.query(Booking).filter_by(customerid=current_user.id).all()
             all_cats = db.session.query(ServiceCategory).all()
-            return render_template("customer/dashboard.html" , allcats=all_cats)
+            return render_template("customer/dashboard.html" , allcats=all_cats , bookings=bookings)
     else:
         return "Unauthorized" , 403
     
@@ -230,6 +230,7 @@ def view_service(id):
         if request.method=="GET" :
             service = db.session.query(ServiceCategory).filter_by(id=id).first()
             professionals = db.session.query(Professional).filter_by(servicecategoryid=service.id , status="Active").all()
+            print(professionals)
             return render_template("customer/service.html" , service=service , professionals=professionals)
     else:
         return "Unauthorized" , 403
@@ -242,8 +243,9 @@ def professional_dashboard():
     if isinstance(current_user , Professional):
         if request.method=="GET" :
 
-            
-            return render_template("professional/dashboard.html")
+            bookings= db.session.query(Booking).filter(Booking.professionalid==current_user.id , Booking.booking_date>=datetime.today().date()).all()
+            past_bookings = db.session.query(Booking).filter(Booking.professionalid==current_user.id , Booking.booking_date<datetime.today().date()).all()
+            return render_template("professional/dashboard.html" , bookings=bookings, past_bookings=past_bookings)
     else:
         return "Unauthorized" , 403 
     
@@ -329,3 +331,38 @@ def provide_availability():
                 db.session.add(new_availability)
                 db.session.commit()
             return redirect("/professional/dashboard")
+        
+
+@app.route("/customer/slotbooking" , methods=["POST", "GET"] )
+@login_required
+def slot_booking():
+    if request.method=="GET":
+        prof_id = request.args.get("prof_id")
+
+
+        available_slots = db.session.query(ProfessionalAvailability).filter(ProfessionalAvailability.professionalid==prof_id , 
+                                                                            ProfessionalAvailability.available_date>datetime.today().date() , ProfessionalAvailability.status=="available" ).all()
+        all_slots = {}
+
+        for slot in available_slots:
+            if slot.available_date not in all_slots:
+                all_slots[slot.available_date] = []
+            all_slots[slot.available_date].append(slot)
+        
+        print(all_slots )
+
+        return render_template("customer/slotbooking.html" , all_slots=all_slots)
+    if request.method=="POST":
+        selected_slots= request.form.get("slots")
+        selected_date , start_time ,end_time , slot_id , prof_id= selected_slots.split("_")
+        prof = db.session.query(Professional).filter_by(id=prof_id).first()
+        newbooking= Booking(customerid = current_user.id , professionalid=prof.id , servicecategoryid=prof.servicecategoryid ,
+                            booking_date=datetime.strptime(selected_date , "%Y-%m-%d").date() ,
+                            start_time=datetime.strptime( start_time , "%H:%M:%S").time() , 
+                            end_time=datetime.strptime( end_time , "%H:%M:%S").time() ,slot_id = slot_id ,status="Booked") 
+        db.session.add(newbooking)
+        db.session.commit()
+        slot=db.session.query(ProfessionalAvailability).filter_by(id=slot_id).first()
+        slot.status="booked"
+        db.session.commit()
+        return redirect("/customer/dashboard")

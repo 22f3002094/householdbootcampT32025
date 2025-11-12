@@ -28,7 +28,7 @@ class Professional(db.Model,UserMixin):
     password = db.Column(db.String, nullable=False)
     phone = db.Column(db.String, nullable=True)
     experience = db.Column(db.Integer, nullable=True)
-    status = db.Column(db.Integer,nullable=True)
+    status = db.Column(db.String,nullable=True)
     recived_bookings = db.relationship("Booking", backref="professional" ,cascade="all, delete-orphan" )
     availabilities = db.relationship("ProfessionalAvailability", backref="professional" , cascade="all, delete-orphan" )
     def get_id(self):
